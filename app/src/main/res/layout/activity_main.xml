@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    style="@style/Theme.WeatherBunoza">
+
+    <RelativeLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvHelloWorld"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No data!"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            android:fontFamily="monospace"
+            android:layout_marginTop="50dp"
+            android:layout_marginHorizontal="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/tvTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvHelloWorld"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_marginBottom="@dimen/margin"
+            android:fontFamily="monospace"
+            android:text="Select location to get data"
+            android:textColor="@color/white"
+            android:textSize="@dimen/RecyclerText"
+            android:textStyle="bold" />
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/mainAnimationView"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_below="@id/tvTemperature"
+            app:lottie_rawRes="@raw/nodataanimation"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="@dimen/margin"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            />
+
+
+        <RelativeLayout
+            android:id="@+id/ll1"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_below="@id/rlHumidity"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="@dimen/margin">
+
+            <TextView
+                android:id="@+id/tvTomorrow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="monospace"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/RecyclerText" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animationView1"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_below="@id/tvTomorrow"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true" />
+
+            <TextView
+                android:id="@+id/tvTomorrowTemp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/animationView1"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="monospace"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/RecyclerText" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ll2"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:layout_below="@id/rlHumidity"
+            android:layout_marginBottom="@dimen/margin">
+
+            <TextView
+                android:id="@+id/tv2Days"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="monospace"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/RecyclerText" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animationView2"
+                android:layout_width="100dp"
+                android:layout_below="@id/tv2Days"
+                android:layout_height="100dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true" />
+
+            <TextView
+                android:id="@+id/tv2DaysTemp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/animationView2"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="monospace"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/RecyclerText" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ll3"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="vertical"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_below="@id/rlHumidity"
+            android:layout_marginBottom="@dimen/margin">
+
+            <TextView
+                android:id="@+id/tv3Days"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="monospace"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/RecyclerText" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animationView3"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_below="@id/tv3Days"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true" />
+
+            <TextView
+                android:id="@+id/tv3DaysTemp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/animationView3"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="monospace"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="@dimen/RecyclerText" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rlHumidity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mainAnimationView"
+            android:layout_toStartOf="@id/rlWind"
+            android:layout_marginEnd="50dp">
+
+            <ImageView
+                android:id="@+id/ivHumidity"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/humidity_icon"
+                android:layout_marginBottom="@dimen/margin"/>
+
+            <TextView
+                android:id="@+id/tvHumidity"
+                android:layout_below="@id/ivHumidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlWind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/mainAnimationView">
+
+            <ImageView
+                android:id="@+id/ivWind"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/wind_icon"
+                android:layout_marginBottom="@dimen/margin"/>
+
+            <TextView
+                android:id="@+id/tvWind"
+                android:layout_below="@id/ivWind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlPressure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mainAnimationView"
+            android:layout_marginStart="50dp"
+            android:layout_toEndOf="@id/rlWind">
+
+            <ImageView
+                android:id="@+id/ivPressure"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/pressure_icon"
+                android:layout_marginBottom="@dimen/margin"/>
+
+            <TextView
+                android:id="@+id/tvPressure"
+                android:layout_below="@id/ivPressure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+</ScrollView>

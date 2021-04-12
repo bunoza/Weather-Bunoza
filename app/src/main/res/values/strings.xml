@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Weather Bunoza</string>
+    <string name="currentTemperature">%1$s %2$s°C</string>
+    <string name="dataError">Unable to get data for %1$s</string>
+    <string name="clearskyday">https://assets1.lottiefiles.com/temp/lf20_Stdaec.json</string>
+    <string name="clearskynight">https://assets8.lottiefiles.com/temp/lf20_y6mY2A.json</string>
+    <string name="fewcloudsday">https://assets8.lottiefiles.com/temp/lf20_dgjK9i.json</string>
+    <string name="fewcloudsnight">https://assets8.lottiefiles.com/temp/lf20_Jj2Qzq.json</string>
+    <string name="scatteredclouds">https://assets8.lottiefiles.com/temp/lf20_VAmWRg.json</string>
+    <string name="brokenclouds">https://assets8.lottiefiles.com/temp/lf20_VAmWRg.json</string>
+    <string name="showerrainday">https://assets8.lottiefiles.com/temp/lf20_rpC1Rd.json</string>
+    <string name="showerrainnight">https://assets8.lottiefiles.com/temp/lf20_I5XMi9.json</string>
+    <string name="rainday">https://assets8.lottiefiles.com/temp/lf20_rpC1Rd.json</string>
+    <string name="rainnight">https://assets8.lottiefiles.com/temp/lf20_I5XMi9.json</string>
+    <string name="thunderstorm">https://assets8.lottiefiles.com/temp/lf20_Kuot2e.json</string>
+    <string name="snow">https://assets8.lottiefiles.com/temp/lf20_WtPCZs.json</string>
+    <string name="mist">https://assets8.lottiefiles.com/temp/lf20_kOfPKE.json</string>
+    <string name="noDataAnimation">https://assets7.lottiefiles.com/packages/lf20_nTfkVR.json</string>
+    <string name="humid">%1$s</string>
+    <string name="wind">%1$s m/s</string>
+    <string name="pressure">%1$s hPa</string>
+</resources>
