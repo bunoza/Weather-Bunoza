@@ -16,7 +16,12 @@
     <string name="snow">https://assets8.lottiefiles.com/temp/lf20_WtPCZs.json</string>
     <string name="mist">https://assets8.lottiefiles.com/temp/lf20_kOfPKE.json</string>
     <string name="noDataAnimation">https://assets7.lottiefiles.com/packages/lf20_nTfkVR.json</string>
-    <string name="humid">%1$s</string>
+    <string name="humid">%1$s%2$s</string>
     <string name="wind">%1$s m/s</string>
     <string name="pressure">%1$s hPa</string>
+    <string name="select_location_to_get_data">Select location to get data</string>
+    <string name="no_data">No data!</string>
+    <string name="temp_no_c">%1$s%2$s</string>
+    <string name="c">°C</string>
+    <string name="percent">%</string>
 </resources>

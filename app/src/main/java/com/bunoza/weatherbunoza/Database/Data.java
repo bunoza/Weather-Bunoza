@@ -53,4 +53,5 @@ public class Data {
         this.lat = lat;
         this.lon = lon;
     }
+
 }

@@ -1,11 +1,7 @@
 package com.bunoza.weatherbunoza;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.room.Room;
-
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,9 +13,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.room.Room;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bunoza.weatherbunoza.Database.AppDatabase;
@@ -40,7 +41,7 @@ import java.util.Locale;
 import im.delight.android.location.SimpleLocation;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,24 +56,36 @@ public class MainActivity extends AppCompatActivity {
     TextView tvTomorrow, tv2Days, tv3Days, tvTomorrowTemp, tv2DaysTemp, tv3DaysTemp, tvHumidity, tvPressure, tvWind;
     Data lastCity;
     AppDatabase db;
-    private ImageView iv;
     LottieAnimationView mainAnimationView;
     LottieAnimationView animationView1;
     LottieAnimationView animationView2;
     LottieAnimationView animationView3;
     private WeatherMapDailyAPI weatherMapDailyAPI;
     private SimpleLocation location;
+    SwipeRefreshLayout swipeRefreshLayout;
+    int refreshCounter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+        setErrorHandler();
         initAPI();
         initUI();
         initDB();
+    }
 
+    private void setErrorHandler() {
+        RxJavaPlugins.setErrorHandler(e -> {
+            if (e instanceof IOException) {
+                compositeDisposable.clear();
+                tvDescription.setText(String.format(getResources().getString(R.string.dataError), lastCity.getCity()));
+                tvTemperature.setText("?°C");
+                setNoDataAnimation(mainAnimationView);
+                setNoDataAnimationDaily();
+            }
+        });
     }
 
     private void initAPI() {
@@ -104,41 +117,43 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "initDB: " + db.dataDao().getFirst());
 
         }
-            if(db.dataDao().getFirst() != null){
-                lastCity = db.dataDao().getFirst();
-                Log.d(TAG, "initDB: " + lastCity.getLat() + lastCity.getLon());
-                fetchWeatherData(lastCity);
-                fetchWeatherDataDaily(lastCity);
-            }else{
-                location = new SimpleLocation(this);
-                if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
-                    Log.d(TAG, "initDB: USPJEH " + location.getLatitude() + " " + location.getLongitude());
+        if(db.dataDao().getFirst() != null){
+            lastCity = db.dataDao().getFirst();
+            Log.d(TAG, "initDB: " + lastCity.getLat() + lastCity.getLon());
+//            fetchWeatherData(lastCity);
+//            fetchWeatherDataDaily(lastCity);
+        }
+        checkForLocationPermission();
 
-                    gainLocation();
+    }
+
+    private void checkForLocationPermission() {
+
+        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+            location = new SimpleLocation(MainActivity.this);
+            Log.d(TAG, "initDB: USPJEH " + location.getLatitude() + " " + location.getLongitude());
+
+            gainLocation();
 
 
-                }else {
-                    if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-                        requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
-                        Log.d(TAG, "initDB: " + location.getLatitude() + " " + location.getLongitude());
-                    }
-                }
+        }else {
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
+//                Log.d(TAG, "initDB: " + location.getLatitude() + " " + location.getLongitude());
             }
-
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch(requestCode){
-            case PERMISSIONS_FINE_LOCATION:
-                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-                    gainLocation();
-                }else{
-                    Toast.makeText(this,"You can still use the app, but you have to search for your location manually", Toast.LENGTH_LONG).show();
+        if (requestCode == PERMISSIONS_FINE_LOCATION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                gainLocation();
+            } else {
+                Toast.makeText(this, "You can still use the app, but you have to search for your location manually", Toast.LENGTH_LONG).show();
 
-                }
-                break;
+            }
         }
     }
 
@@ -148,40 +163,41 @@ public class MainActivity extends AppCompatActivity {
         try
         {
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            Log.e("Addresses","-->"+addresses);
+            Log.d("Addresses","-->"+addresses);
             String result = addresses.get(0).getLocality().trim();
             Log.d(TAG, "initDB: " + result);
-            db.dataDao().insert(new Data(result, Double.toString(location.getLatitude()), Double.toString(location.getLongitude())));
+            insertIntoDB(new Data(result, Double.toString(location.getLatitude()), Double.toString(location.getLongitude())));
             fetchWeatherDataDaily(db.dataDao().getFirst());
             fetchWeatherData(db.dataDao().getFirst());
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
     }
 
+    private void insertIntoDB(Data data){
+        if (db.dataDao().getFirst() != null) {
+            db.dataDao().delete(db.dataDao().getFirst());
+        }
+        db.dataDao().insert(data);
+    }
+
     private void fetchWeatherData(Data s){
             compositeDisposable.add(weatherMapAPI.getWeather(s.getLat(), s.getLon(), APIKey, "metric")
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<WeatherResults>() {
-                                   @Override
-                                   public void accept(WeatherResults weatherResults)  {
-                                       Log.d(TAG, "accept: " + weatherResults.getWeather().get(0).getDescription());
-                                       updateWeather(weatherResults);
-
-                                   }
-
-                               }, new Consumer<Throwable>() {
-                                   @Override
-                                   public void accept(Throwable throwable)  {
-                                       compositeDisposable.clear();
-                                       Log.e(TAG, "accept: " + throwable);
-                                       tvDescription.setText(String.format(getResources().getString(R.string.dataError), s));
-                                       tvTemperature.setText("?°C");
-                                       setNoDataAnimation(mainAnimationView);
-                                   }
-                               }
+                    .subscribe(weatherResults -> {
+                        Log.d(TAG, "accept: " + weatherResults.getWeather().get(0).getDescription());
+                        updateWeather(weatherResults);
+                        refreshCounter++;
+                        terminateRefreshing();
+                    }, throwable -> {
+//                                       compositeDisposable.clear();
+//                                       Log.e(TAG, "accept: " + throwable);
+//                                       tvDescription.setText(String.format(getResources().getString(R.string.dataError), s));
+//                                       tvTemperature.setText("?°C");
+//                                       setNoDataAnimation(mainAnimationView);
+                    }
                     ));
     }
 
@@ -189,44 +205,39 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "fetchWeatherDataDaily: " + s.getLat()+ " "  + s.getLon());
         compositeDisposable.add(weatherMapDailyAPI.getWeatherDaily(s.getLat(), s.getLon(), "hourly,minutely,alerts,current", "metric", APIKey)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<WeatherResultsDaily>() {
-                    @Override
-                    public void accept(WeatherResultsDaily weatherResultsDaily) throws Exception {
-                        Log.d(TAG, "accept: daily" + weatherResultsDaily.toString());
-                        updateWeatherDaily(weatherResultsDaily.getDaily());
-                        updateDates(weatherResultsDaily);
-                        updateTemps(weatherResultsDaily);
-                    }
-
-                           }, new Consumer<Throwable>() {
-                               @Override
-                               public void accept(Throwable throwable)  {
-                                   Log.e(TAG, "accept: " + throwable);
-                                   setNoDataAnimationDaily();
-                               }
+                .subscribe(weatherResultsDaily -> {
+                    Log.d(TAG, "accept: daily" + weatherResultsDaily.toString());
+                    updateWeatherDaily(weatherResultsDaily.getDaily());
+                    updateDates(weatherResultsDaily);
+                    updateTemps(weatherResultsDaily);
+                    refreshCounter++;
+                    terminateRefreshing();
+                }, throwable -> {
+//                                   Log.e(TAG, "accept: " + throwable);
+//                                   setNoDataAnimationDaily();
                            }
                 ));
     }
 
+    @SuppressLint("StringFormatMatches")
     private void updateTemps(WeatherResultsDaily weatherResultsDaily) {
-        tvTomorrowTemp.setText(weatherResultsDaily.getDaily().get(1).getTemp().getMax().intValue()+ "°C");
-        tv2DaysTemp.setText(weatherResultsDaily.getDaily().get(2).getTemp().getMax().intValue() + "°C");
-        tv3DaysTemp.setText(weatherResultsDaily.getDaily().get(3).getTemp().getMax().intValue() + "°C");
-
-
+        tvTomorrowTemp.setText(String.format(getResources().getString(R.string.temp_no_c), weatherResultsDaily.getDaily().get(1).getTemp().getMax().intValue(), getResources().getString(R.string.c)));
+        tv2DaysTemp.setText(String.format(getResources().getString(R.string.temp_no_c), weatherResultsDaily.getDaily().get(2).getTemp().getMax().intValue(), getResources().getString(R.string.c)));
+        tv3DaysTemp.setText(String.format(getResources().getString(R.string.temp_no_c), weatherResultsDaily.getDaily().get(3).getTemp().getMax().intValue(), getResources().getString(R.string.c)));
     }
 
     private void updateDates(WeatherResultsDaily weatherResultsDaily) {
         int i;
         for(i = 1; i < 4; i++){
             Date date = new Date((weatherResultsDaily.getDaily().get(i).getDt() + weatherResultsDaily.getTimezoneOffset())*1000L);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.");
             String formatted = sdf.format(date);
-            switch (i){
-                case 1: tvTomorrow.setText(formatted); break;
-                case 2: tv2Days.setText(formatted); break;
-                case 3: tv3Days.setText(formatted); break;
-                default: tvTomorrow.setText(formatted); break;
+            if (i == 1) {
+                tvTomorrow.setText(formatted);
+            } else if (i == 2) {
+                tv2Days.setText(formatted);
+            } else {
+                tv3Days.setText(formatted);
             }
         }
 
@@ -247,19 +258,17 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "updateWeather: " + weatherResults.getWeather().get(0).getIcon());
         pickAnimation(weatherResults.getWeather().get(0).getIcon(), mainAnimationView);
         tvTemperature.setText(String.format(getResources().getString(R.string.currentTemperature), db.dataDao().getFirst().getCity(), weatherResults.getMain().getTemp().toString()));
-        tvHumidity.setText(String.format(getResources().getString(R.string.humid), weatherResults.getMain().getHumidity().toString()) + "%");
+        tvHumidity.setText(String.format(getResources().getString(R.string.humid), weatherResults.getMain().getHumidity().toString(), getResources().getString(R.string.percent)));
         tvWind.setText(String.format(getResources().getString(R.string.wind), weatherResults.getWind().getSpeed().toString()));
         tvPressure.setText(String.format(getResources().getString(R.string.pressure), weatherResults.getMain().getPressure().toString()));
 
     }
 
     private void updateWeatherDaily(List<Daily> daily) {
-//        tvDescription.setText(daily.getWeather().get(0).getDescription());
         Log.d(TAG, "updateWeather: " + daily.get(1).getDt());
         pickAnimation(daily.get(1).getWeather().get(0).getIcon(), animationView1);
         pickAnimation(daily.get(2).getWeather().get(0).getIcon(), animationView2);
         pickAnimation(daily.get(3).getWeather().get(0).getIcon(), animationView3);
-//        tvTemperature.setText(String.format(getResources().getString(R.string.currentTemperature), db.dataDao().getFirst().getCity().toString(), weatherResults.getMain().getTemp().toString()));
     }
 
 
@@ -269,20 +278,25 @@ public class MainActivity extends AppCompatActivity {
             case "01n": anim.setAnimationFromUrl(getResources().getString(R.string.clearskynight)); break;
             case "02d": anim.setAnimationFromUrl(getResources().getString(R.string.fewcloudsday)); break;
             case "02n": anim.setAnimationFromUrl(getResources().getString(R.string.fewcloudsnight)); break;
-            case "03d": anim.setAnimationFromUrl(getResources().getString(R.string.scatteredclouds)); break;
-            case "03n": anim.setAnimationFromUrl(getResources().getString(R.string.scatteredclouds)); break;
-            case "04d": anim.setAnimationFromUrl(getResources().getString(R.string.brokenclouds)); break;
-            case "04n": anim.setAnimationFromUrl(getResources().getString(R.string.brokenclouds)); break;
+            case "03d":
+            case "03n":
+                        anim.setAnimationFromUrl(getResources().getString(R.string.scatteredclouds)); break;
+            case "04d":
+            case "04n":
+                        anim.setAnimationFromUrl(getResources().getString(R.string.brokenclouds)); break;
             case "09d": anim.setAnimationFromUrl(getResources().getString(R.string.showerrainday)); break;
             case "09n": anim.setAnimationFromUrl(getResources().getString(R.string.showerrainnight)); break;
             case "10d": anim.setAnimationFromUrl(getResources().getString(R.string.rainday)); break;
             case "10n": anim.setAnimationFromUrl(getResources().getString(R.string.rainnight)); break;
-            case "11d": anim.setAnimationFromUrl(getResources().getString(R.string.thunderstorm)); break;
-            case "11n": anim.setAnimationFromUrl(getResources().getString(R.string.thunderstorm)); break;
-            case "13d": anim.setAnimationFromUrl(getResources().getString(R.string.snow)); break;
-            case "13n": anim.setAnimationFromUrl(getResources().getString(R.string.snow)); break;
-            case "50d": anim.setAnimationFromUrl(getResources().getString(R.string.mist)); break;
-            case "50n": anim.setAnimationFromUrl(getResources().getString(R.string.mist)); break;
+            case "11d":
+            case "11n":
+                        anim.setAnimationFromUrl(getResources().getString(R.string.thunderstorm)); break;
+            case "13d":
+            case "13n":
+                        anim.setAnimationFromUrl(getResources().getString(R.string.snow)); break;
+            case "50d":
+            case "50n":
+                        anim.setAnimationFromUrl(getResources().getString(R.string.mist)); break;
             default: setNoDataAnimation(anim); break;
         }
         anim.playAnimation();
@@ -292,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
     private void setNoDataAnimation(LottieAnimationView anim){
         anim.setAnimation(getResources().getIdentifier("nodataanimation", "raw", getPackageName()));
         anim.playAnimation();
-    };
+    }
 
     public boolean isInternetAvailable(final Context context) {
         final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
@@ -315,6 +329,24 @@ public class MainActivity extends AppCompatActivity {
         tvPressure = findViewById(R.id.tvPressure);
         tvWind = findViewById(R.id.tvWind);
         tvHumidity = findViewById(R.id.tvHumidity);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if(isInternetAvailable(this)){
+                refreshCounter = 0;
+                checkForLocationPermission();
+                fetchWeatherDataDaily(db.dataDao().getFirst());
+                fetchWeatherData(db.dataDao().getFirst());
+            }else{
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "Internet connection is needed to fetch data", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void terminateRefreshing(){
+        if(refreshCounter == 2){
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
 

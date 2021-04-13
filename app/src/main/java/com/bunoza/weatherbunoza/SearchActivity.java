@@ -1,17 +1,17 @@
 package com.bunoza.weatherbunoza;
 
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.SearchView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.SearchView;
-
+import com.bunoza.weatherbunoza.City.CityResults;
 import com.bunoza.weatherbunoza.Database.AppDatabase;
 import com.bunoza.weatherbunoza.Database.Data;
-import com.bunoza.weatherbunoza.City.CityResults;
 import com.bunoza.weatherbunoza.Recycler.ItemClickListener;
 import com.bunoza.weatherbunoza.Recycler.RecyclerAdapter;
 import com.bunoza.weatherbunoza.Retrofit.GeocodeAPI;
@@ -19,7 +19,6 @@ import com.bunoza.weatherbunoza.Retrofit.RetrofitClientGeo;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class SearchActivity extends AppCompatActivity implements ItemClickListener {
@@ -94,23 +93,14 @@ public class SearchActivity extends AppCompatActivity implements ItemClickListen
     private void fetchCitiesData(String s){
         compositeDisposable.add(geocodeAPI.getCities(s, GeoUsername, 15, "PPL")
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).
-                        subscribe(new Consumer<CityResults>() {
-                                      @Override
-                                      public void accept(CityResults cityResults) {
-                                          Log.d(TAG, "accept: pred postavljanje podataka");
-                                          if(s.trim().length() == searchView.getQuery().toString().trim().length()){
-                                              setupRecyclerData(cityResults);
-                                          }
-                                          Log.d(TAG, "accept: uspješno postavljeni podaci");
+                        subscribe(cityResults -> {
+                            Log.d(TAG, "accept: pred postavljanje podataka");
+                            if(s.trim().length() == searchView.getQuery().toString().trim().length()){
+                                setupRecyclerData(cityResults);
+                            }
+                            Log.d(TAG, "accept: uspješno postavljeni podaci");
 
-                                      }
-                                  }, new Consumer<Throwable>() {
-                                      @Override
-                                      public void accept(Throwable throwable) throws Exception {
-                                          Log.e(TAG, throwable.getMessage(), throwable);
-                                      }
-                                  }
-                        ));
+                        }));
     }
 
     @Override
