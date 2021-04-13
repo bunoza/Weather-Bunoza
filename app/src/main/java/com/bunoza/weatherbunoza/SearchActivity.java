@@ -92,13 +92,15 @@ public class SearchActivity extends AppCompatActivity implements ItemClickListen
     }
 
     private void fetchCitiesData(String s){
-        compositeDisposable.add(geocodeAPI.getCities(s, GeoUsername, 5, "PPL")
+        compositeDisposable.add(geocodeAPI.getCities(s, GeoUsername, 15, "PPL")
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).
                         subscribe(new Consumer<CityResults>() {
                                       @Override
                                       public void accept(CityResults cityResults) {
                                           Log.d(TAG, "accept: pred postavljanje podataka");
-                                          setupRecyclerData(cityResults);
+                                          if(s.trim().length() == searchView.getQuery().toString().trim().length()){
+                                              setupRecyclerData(cityResults);
+                                          }
                                           Log.d(TAG, "accept: uspješno postavljeni podaci");
 
                                       }

@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateDates(WeatherResultsDaily weatherResultsDaily) {
         int i;
         for(i = 1; i < 4; i++){
-            Date date = new Date(weatherResultsDaily.getDaily().get(i).getDt()*1000L);
+            Date date = new Date((weatherResultsDaily.getDaily().get(i).getDt() + weatherResultsDaily.getTimezoneOffset())*1000L);
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.");
             String formatted = sdf.format(date);
             switch (i){
