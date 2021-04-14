@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         weatherMapDailyAPI = RetrofitClientWeatherMap.getDailyApiInterface();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.settings, menu);

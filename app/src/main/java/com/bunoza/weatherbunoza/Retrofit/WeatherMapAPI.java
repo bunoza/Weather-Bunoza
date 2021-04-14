@@ -15,4 +15,5 @@ public interface WeatherMapAPI {
             @Query(value = "units") String units
     );
 
+
 }
