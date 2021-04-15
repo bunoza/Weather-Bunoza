@@ -12,7 +12,7 @@
 
 ### Learning and next steps
 
-**Altough this app works, I have learned that I should use Kotlin, Koin, MVVM architecture and dependency injection, which is currently my primary learning objective.**
+**Although this app works, I have learned that I should use Kotlin, Koin, MVVM architecture and dependency injection, which is currently my primary learning objective.**
 
 ### Implemented
 
