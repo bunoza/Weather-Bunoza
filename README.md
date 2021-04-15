@@ -30,5 +30,9 @@
 
 ### Icon:
 
+Artist: Papirus Development Team
+
+License: GNU General Public License v3.0
+
 <img src="/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" width="250" height="250"> 
 
