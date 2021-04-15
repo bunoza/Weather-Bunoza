@@ -10,6 +10,8 @@
 
 • Brief weather forecast for next 3 days for selected location
 
+**Altough this app works, I have learned that I should use Kotlin, Koin, MVVM architecture and dependency injection, which is my primary learning objective.**
+
 ### Implemented
 
 • RxJava, Room Database, Retrofit, Lottie, RecyclerView, etc.
